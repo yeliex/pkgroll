@@ -1,5 +1,5 @@
 {
-	"name": "pkgroll",
+	"name": "@yeliex/pkgroll",
 	"version": "0.0.0-semantic-release",
 	"description": "Zero-config rollup bundler",
 	"keywords": [
