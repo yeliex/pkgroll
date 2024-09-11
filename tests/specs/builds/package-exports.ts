@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { pkgroll } from '../../utils.js';
-import { packageFixture, createPackageJson } from '../../fixtures.js';
+import { packageFixture, createPackageJson, fixtureFiles } from '../../fixtures.js';
 
 export default testSuite(({ describe }, nodePath: string) => {
 	describe('package exports', ({ test }) => {
@@ -174,6 +174,34 @@ export default testSuite(({ describe }, nodePath: string) => {
 			expect(await fixture.exists('dist/pages/b.js')).toEqual(true);
 			expect(await fixture.exists('dist/pages/a.d.ts')).toEqual(true);
 			expect(await fixture.exists('dist/pages/b.d.ts')).toEqual(true);
+		});
+
+		test('get basename with dot', async () => {
+			const files = {
+				...fixtureFiles,
+				'index.node.js': fixtureFiles['index.js']
+			}
+
+				await using fixture = await createFixture({
+					...packageFixture(),
+					src: files,
+					'package.json': createPackageJson({
+						exports: {
+							default: './dist/index.node.js',
+						}
+					}),
+				});
+
+			const pkgrollProcess = await pkgroll([], {
+				cwd: fixture.path,
+				nodePath,
+			});
+
+			expect(pkgrollProcess.exitCode).toBe(0);
+			expect(pkgrollProcess.stderr).toBe('');
+
+			const content = await fixture.readFile('dist/index.node.js', 'utf8');
+			expect(content).toMatch('module.exports =');
 		});
 	});
 });
